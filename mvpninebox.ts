@@ -135,7 +135,7 @@ function classificarNineBox(mediaDesempenho: number, mediaPotencial: number): st
 }
 
 // Execução principal
-async function executarAvaliacao() {
+async function executarAvaliacao(permissaoEscolhida) {
   console.log("=== MVP Avaliação de Desempenho com Nine Box ===");
 
   console.log("\n Avaliação de DESEMPENHO:");
@@ -268,10 +268,23 @@ async function executarCrudAvaliacao() {
   }
 }
 
-const permissaoEscolhida = await obterPermissao();
-console.log(`✅ Perfil selecionado: ${permissaoEscolhida.toUpperCase()}`);
-if(permissaoEscolhida==='colaborador' || permissaoEscolhida === 'gestor'){
-executarAvaliacao();
-}else if(permissaoEscolhida==='admin'){
-  executarCrudAvaliacao();
+
+async function main() {
+  const permissaoEscolhida = await obterPermissao();
+  console.log(`✅ Perfil selecionado: ${permissaoEscolhida.toUpperCase()}`);
+
+  if (permissaoEscolhida === 'colaborador' || permissaoEscolhida === 'gestor') {
+    await executarAvaliacao(permissaoEscolhida);
+  } else if (permissaoEscolhida === 'admin') {
+    await executarCrudAvaliacao();
+    
+    const rodarAvaliacao = await perguntar("\nDeseja rodar uma simulação de avaliação agora? (s/n): ");
+    if(rodarAvaliacao.toLowerCase() === 's') {
+        await executarAvaliacao('gestor'); 
+    }
+  }
+
+  rl.close();
 }
+
+main();

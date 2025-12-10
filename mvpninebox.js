@@ -77,16 +77,19 @@ function obterPermissao() {
                     console.log("\nQual o seu perfil?");
                     console.log("1 - Colaborador");
                     console.log("2 - Gestor");
+                    console.log("3 - Admin");
                     return [4 /*yield*/, perguntar("Digite o nome ou número (ex: 'gestor' ou '2'): ")];
                 case 1:
                     resposta = _a.sent();
                     limpo = resposta.trim().toLowerCase();
-                    // Validação flexível (aceita número ou nome)
                     if (limpo === '1' || limpo === 'colaborador') {
                         return [2 /*return*/, 'colaborador'];
                     }
                     else if (limpo === '2' || limpo === 'gestor') {
                         return [2 /*return*/, 'gestor'];
+                    }
+                    else if (limpo === '3' || limpo === 'admin') {
+                        return [2 /*return*/, 'admin'];
                     }
                     console.log("❌ Opção inválida! Digite apenas 'colaborador' ou 'gestor'.");
                     return [3 /*break*/, 0];
@@ -168,24 +171,20 @@ function classificarNineBox(mediaDesempenho, mediaPotencial) {
     return matriz["".concat(desempenho, "-").concat(potencial)];
 }
 // Execução principal
-function executar() {
+function executarAvaliacao(permissaoEscolhida) {
     return __awaiter(this, void 0, void 0, function () {
-        var permissaoEscolhida, respostasDesempenho, respostasPotencial, mediaDesempenho, mediaPotencial, resultado;
+        var respostasDesempenho, respostasPotencial, mediaDesempenho, mediaPotencial, resultado;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     console.log("=== MVP Avaliação de Desempenho com Nine Box ===");
-                    return [4 /*yield*/, obterPermissao()];
-                case 1:
-                    permissaoEscolhida = _a.sent();
-                    console.log("\u2705 Perfil selecionado: ".concat(permissaoEscolhida.toUpperCase()));
                     console.log("\n Avaliação de DESEMPENHO:");
                     return [4 /*yield*/, coletar(perguntasDesempenho, permissaoEscolhida)];
-                case 2:
+                case 1:
                     respostasDesempenho = _a.sent();
                     console.log("\n Avaliação de POTENCIAL:");
                     return [4 /*yield*/, coletar(perguntasPotencial, permissaoEscolhida)];
-                case 3:
+                case 2:
                     respostasPotencial = _a.sent();
                     rl.close();
                     mediaDesempenho = calcularMedia(respostasDesempenho);
@@ -200,4 +199,209 @@ function executar() {
         });
     });
 }
-executar();
+//crudAvaliacao
+function selecionarBancoDePerguntas() {
+    return __awaiter(this, void 0, void 0, function () {
+        var opcao;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.log("\n--- Qual categoria você deseja editar? ---");
+                    console.log("1 - Desempenho");
+                    console.log("2 - Potencial");
+                    console.log("0 - Voltar");
+                    return [4 /*yield*/, perguntar("Opção: ")];
+                case 1:
+                    opcao = _a.sent();
+                    if (opcao === '1')
+                        return [2 /*return*/, perguntasDesempenho];
+                    if (opcao === '2')
+                        return [2 /*return*/, perguntasPotencial];
+                    return [2 /*return*/, null];
+            }
+        });
+    });
+}
+function crudListar(lista, titulo) {
+    console.log("\n--- Lista de Perguntas: ".concat(titulo, " ---"));
+    if (lista.length === 0) {
+        console.log("(Nenhuma pergunta cadastrada)");
+    }
+    else {
+        lista.forEach(function (p, index) { return console.log("".concat(index + 1, ". ").concat(p)); });
+    }
+}
+function crudAdicionar(lista) {
+    return __awaiter(this, void 0, void 0, function () {
+        var novaPergunta;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, perguntar("\nDigite a nova pergunta: ")];
+                case 1:
+                    novaPergunta = _a.sent();
+                    if (novaPergunta.trim()) {
+                        lista.push(novaPergunta);
+                        console.log("✅ Pergunta adicionada com sucesso!");
+                    }
+                    else {
+                        console.log("❌ Texto inválido.");
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function crudAtualizar(lista) {
+    return __awaiter(this, void 0, void 0, function () {
+        var indiceStr, index, novoTexto;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    crudListar(lista, "SELEÇÃO PARA EDIÇÃO");
+                    return [4 /*yield*/, perguntar("\nDigite o número da pergunta para editar: ")];
+                case 1:
+                    indiceStr = _a.sent();
+                    index = parseInt(indiceStr) - 1;
+                    if (!(index >= 0 && index < lista.length)) return [3 /*break*/, 3];
+                    console.log("Atual: \"".concat(lista[index], "\""));
+                    return [4 /*yield*/, perguntar("Novo texto: ")];
+                case 2:
+                    novoTexto = _a.sent();
+                    if (novoTexto.trim()) {
+                        lista[index] = novoTexto;
+                        console.log("✅ Pergunta atualizada!");
+                    }
+                    return [3 /*break*/, 4];
+                case 3:
+                    console.log("❌ Índice inválido.");
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function crudDeletar(lista) {
+    return __awaiter(this, void 0, void 0, function () {
+        var indiceStr, index, confirmacao;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    crudListar(lista, "SELEÇÃO PARA REMOÇÃO");
+                    return [4 /*yield*/, perguntar("\nDigite o número da pergunta para apagar: ")];
+                case 1:
+                    indiceStr = _a.sent();
+                    index = parseInt(indiceStr) - 1;
+                    if (!(index >= 0 && index < lista.length)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, perguntar("Tem certeza que deseja apagar: \"".concat(lista[index], "\"? (s/n): "))];
+                case 2:
+                    confirmacao = _a.sent();
+                    if (confirmacao.toLowerCase() === 's') {
+                        lista.splice(index, 1);
+                        console.log("✅ Pergunta removida!");
+                    }
+                    else {
+                        console.log("Operação cancelada.");
+                    }
+                    return [3 /*break*/, 4];
+                case 3:
+                    console.log("❌ Índice inválido.");
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function executarCrudAvaliacao() {
+    return __awaiter(this, void 0, void 0, function () {
+        var rodando, opcao, listaAlvo, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    rodando = true;
+                    _b.label = 1;
+                case 1:
+                    if (!rodando) return [3 /*break*/, 13];
+                    console.log("\n=== PAINEL ADMINISTRATIVO (CRUD) ===");
+                    console.log("1 - Listar Perguntas");
+                    console.log("2 - Adicionar Pergunta");
+                    console.log("3 - Atualizar Pergunta");
+                    console.log("4 - Apagar Pergunta");
+                    console.log("0 - Sair / Voltar ao Início");
+                    return [4 /*yield*/, perguntar("Escolha uma opção: ")];
+                case 2:
+                    opcao = _b.sent();
+                    if (opcao === '0') {
+                        rodando = false;
+                        return [3 /*break*/, 13];
+                    }
+                    return [4 /*yield*/, selecionarBancoDePerguntas()];
+                case 3:
+                    listaAlvo = _b.sent();
+                    if (!listaAlvo) return [3 /*break*/, 12];
+                    _a = opcao;
+                    switch (_a) {
+                        case '1': return [3 /*break*/, 4];
+                        case '2': return [3 /*break*/, 5];
+                        case '3': return [3 /*break*/, 7];
+                        case '4': return [3 /*break*/, 9];
+                    }
+                    return [3 /*break*/, 11];
+                case 4:
+                    crudListar(listaAlvo, "Visualização");
+                    return [3 /*break*/, 12];
+                case 5: return [4 /*yield*/, crudAdicionar(listaAlvo)];
+                case 6:
+                    _b.sent();
+                    return [3 /*break*/, 12];
+                case 7: return [4 /*yield*/, crudAtualizar(listaAlvo)];
+                case 8:
+                    _b.sent();
+                    return [3 /*break*/, 12];
+                case 9: return [4 /*yield*/, crudDeletar(listaAlvo)];
+                case 10:
+                    _b.sent();
+                    return [3 /*break*/, 12];
+                case 11:
+                    console.log("Opção inválida.");
+                    _b.label = 12;
+                case 12: return [3 /*break*/, 1];
+                case 13: return [2 /*return*/];
+            }
+        });
+    });
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        var permissaoEscolhida, rodarAvaliacao;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, obterPermissao()];
+                case 1:
+                    permissaoEscolhida = _a.sent();
+                    console.log("\u2705 Perfil selecionado: ".concat(permissaoEscolhida.toUpperCase()));
+                    if (!(permissaoEscolhida === 'colaborador' || permissaoEscolhida === 'gestor')) return [3 /*break*/, 3];
+                    return [4 /*yield*/, executarAvaliacao(permissaoEscolhida)];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 3:
+                    if (!(permissaoEscolhida === 'admin')) return [3 /*break*/, 7];
+                    return [4 /*yield*/, executarCrudAvaliacao()];
+                case 4:
+                    _a.sent();
+                    return [4 /*yield*/, perguntar("\nDeseja rodar uma simulação de avaliação agora? (s/n): ")];
+                case 5:
+                    rodarAvaliacao = _a.sent();
+                    if (!(rodarAvaliacao.toLowerCase() === 's')) return [3 /*break*/, 7];
+                    return [4 /*yield*/, executarAvaliacao('gestor')];
+                case 6:
+                    _a.sent();
+                    _a.label = 7;
+                case 7:
+                    rl.close();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+main();
