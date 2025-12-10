@@ -1,10 +1,12 @@
 import * as readline from "readline";
 
+type TipoPermissao = 'colaborador' | 'gestor';
 
 interface Resposta {
   pergunta: string;
   indiceResposta: number;
   pontuacao: number;
+  permissao: TipoPermissao;
 }
 
 // Opções de resposta
@@ -43,8 +45,29 @@ function perguntar(texto: string): Promise<string> {
   return new Promise((resolve) => rl.question(texto, resolve));
 }
 
+async function obterPermissao(): Promise<TipoPermissao> {
+  while (true) {
+    console.log("\nQual o seu perfil?");
+    console.log("1 - Colaborador");
+    console.log("2 - Gestor");
+    
+    const resposta = await perguntar("Digite o nome ou número (ex: 'gestor' ou '2'): ");
+    const limpo = resposta.trim().toLowerCase();
+
+    // Validação flexível (aceita número ou nome)
+    if (limpo === '1' || limpo === 'colaborador') {
+      return 'colaborador';
+    } 
+    else if (limpo === '2' || limpo === 'gestor') {
+      return 'gestor';
+    }
+
+    console.log("❌ Opção inválida! Digite apenas 'colaborador' ou 'gestor'.");
+  }
+}
+
 // Coleta respostas com validação
-async function coletar(perguntas: string[]): Promise<Resposta[]> {
+async function coletar(perguntas: string[], permisao:TipoPermissao): Promise<Resposta[]> {
   const respostas: Resposta[] = [];
 
   for (const pergunta of perguntas) {
@@ -68,6 +91,7 @@ async function coletar(perguntas: string[]): Promise<Resposta[]> {
     }
 
     respostas.push({
+      permissao:permisao,
       pergunta: pergunta!,
       indiceResposta,
       pontuacao: pontuacoes[indiceResposta]!
@@ -112,11 +136,14 @@ function classificarNineBox(mediaDesempenho: number, mediaPotencial: number): st
 async function executar() {
   console.log("=== MVP Avaliação de Desempenho com Nine Box ===");
 
+  const permissaoEscolhida = await obterPermissao();
+  console.log(`✅ Perfil selecionado: ${permissaoEscolhida.toUpperCase()}`);
+
   console.log("\n Avaliação de DESEMPENHO:");
-  const respostasDesempenho = await coletar(perguntasDesempenho);
+  const respostasDesempenho = await coletar(perguntasDesempenho,permissaoEscolhida);
 
   console.log("\n Avaliação de POTENCIAL:");
-  const respostasPotencial = await coletar(perguntasPotencial);
+  const respostasPotencial = await coletar(perguntasPotencial,permissaoEscolhida);
 
   rl.close();
 
